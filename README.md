@@ -5,14 +5,12 @@
 ![Rubberduck](https://img.shields.io/badge/Rubberduck-Ready-orange)
 
 Generic VBA Class based on an encapsulated VB Collection
+
 A lightweight, **Collection-backed LIFO stack** for VBA with:
 - O(1) push/pop at the **top** (stored at position `1`)
 - Safe **enumeration** (`For Each`) via a proper COM enumerator
 - Clear error semantics (`Peek` / `Pop` on empty stack raise error 5)
 - Zero dependencies (pure VBA)
-
-> Version: **2025.09.09**  
-> Author: **Vincent van Geerestein**
 
 ---
 
@@ -20,7 +18,6 @@ A lightweight, **Collection-backed LIFO stack** for VBA with:
 
 - **Fast push/pop** (top is position `1` to avoid VB Collection tail-removal penalty)
 - **Enumeration**: `For Each item In Stack` (via hidden `[_NewEnum]`)
-- **Strong defaults**: `Peek` is the **default member**
 - **Utility export**: `Items([base])` returns a 0- or 1-based array copy
 - Pure VBA, no external references, Rubberduck-friendly annotations
 
