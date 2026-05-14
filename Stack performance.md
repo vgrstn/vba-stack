@@ -74,9 +74,9 @@ Average time per **Push + Pop** cycle (milliseconds):
 
 | Count | Custom Stack | System Stack | Relative Speed |
 |:------:|-------------:|-------------:|---------------:|
-| 10 × 10³ | 0.00049 | 0.00342 | ≈ 7× faster |
-| 100 × 10³ | 0.00050 | 0.00343 | ≈ 7× faster |
-| 1 000 × 10³ | 0.00050 | 0.00344 | ≈ 7× faster |
+| 10 × 10³ | 0.00050 | 0.00527 | ≈ 7× faster |
+| 100 × 10³ | 0.00050 | 0.00534 | ≈ 7× faster |
+| 1 000 × 10³ | 0.00050 | 0.00531 | ≈ 7× faster |
 
 ### Observations
 
