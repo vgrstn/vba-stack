@@ -62,11 +62,11 @@ Timings (ms) for one `Push` + one `Pop`, measured on Windows x64:
 
 | # | Count   | vba-stack | System.Collections.Stack |
 |---|---------|-----------|--------------------------|
-| 1 | 10      | 0.00050   | 0.00527                  |
-| 2 | 100     | 0.00051   | 0.00528                  |
-| 3 | 1,000   | 0.00050   | 0.00529                  |
-| 4 | 10,000  | 0.00050   | 0.00534                  |
-| 5 | 100,000 | 0.00050   | 0.00531                  |
+| 1 | 10      | 0.00054   | 0.00410                  |
+| 2 | 100     | 0.00053   | 0.00396                  |
+| 3 | 1,000   | 0.00054   | 0.00364                  |
+| 4 | 10,000  | 0.00054   | 0.00390                  |
+| 5 | 100,000 | 0.00053   | 0.00383                  |
 
 Performance is consistent regardless of stack size. `System.Collections.Stack` uses late binding, which explains its relatively poor performance.
 
