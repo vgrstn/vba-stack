@@ -1,6 +1,6 @@
 '@IgnoreModule UseMeaningfulName, ProcedureNotUsed
 '@Folder("Class")
-'@ModuleDescription("Generic stack class.")
+'@ModuleDescription("Generic Stack Class.")
 
 '------------------------------------------------------------------------------
 ' MIT License
@@ -34,43 +34,57 @@ Option Explicit
 
 ' Author: Vincent van Geerestein
 ' E-mail: vincent@vangeerestein.com
-' Description: Generic stack class
+' Description: Generic Stack Class
 ' Enumeration: For Each item in object
 ' Add-in: RubberDuck (https://rubberduckvba.com/)
-' Version: 2025.10.17
+' Version: 2025.09.09
 '
 ' Methods
-' Clear             Clears the stack
+' Clear             Removes all items from the stack
 ' Push item         Adds an item at the top of the stack
 ' Pop               Returns and removes the item at the top of the stack
 ' Items([base])     Exports all stack items to an array
 '
-' Properties
-' Count             Returns the number of items in the stack
+' Properties (Get)
+' Count             Returns the number of items contained in the stack
 ' IsEmpty           Returns True if the stack is empty or False if not
 ' Peek              Returns the item at the top of the stack (default)
 '
-' This generic Stack Class is implemented using an encapsulated VB Array.
+' This generic Stack Class is implemented using an encapsulated VB Collection.
+' The top of the stack is coded at position 1 in order to avoid performance
+' degradation when removing an item from the last position in a VB Collection.
 '
 ' Timings (ms) for one push + one pop.
-'     count      Array   Collection
-' 1      10    0.00029      0.00050
-' 2     100    0.00029      0.00051
-' 3    1000    0.00030      0.00050
-' 4   10000    0.00029      0.00050
-' 5  100000    0.00136      0.00050
+'     count      Class       System
+' 1      10    0.00050      0.00527
+' 2     100    0.00051      0.00528
+' 3    1000    0.00050      0.00529
+' 4   10000    0.00050      0.00534
+' 5  100000    0.00050      0.00531
 '
-' The performance of the Array version is about 40% faster than the Collection
-' version and it uses 50% less memory (for x64) per stored item, although extra
-' memory is needed for the headspace (ChunkSize).
+' The results for the Stack Class show a consistent performance independent of
+' its actual size. The System.Collections.Stack uses late binding which is most
+' likely the explanation for its relative poor performance.
 '
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-' Performance Notes
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-' Array-based stack is faster and more memory-efficient than using a Collection.
-' Shrink logic avoids fragmentation and excessive resizing.
-' Enumeration is rarely used in stack workflows, but supported for completeness.
+' The VB Collection class is implemented as a double linked list with a hash
+' table to access an item by its key. As expected the CPU time for adding a
+' new item to the first position or to the last position are similar and these
+' timings do not depend on the number of items. Removing an item from the first
+' position shows similar timings as for adding an item. However, the timings for
+' removing an item from the last position proofs to be dependent on the number
+' of items already in the VB Collection. The explanation must be that in the
+' latter case the internal code doesn't use the tail node but actuallly follows
+' the list from the head node until arriving at the to be deleted node. This
+' poor performance has been reported since early VB versions, see Hardcore
+' Visual Basic version 5.0 by Bruce McKinney (Microsoft Press, 1997)
+'
+' Timings (ms) for VB Collection
+'     count    add item    remove count      add item 1     remove 1
+' 1      10     0.00008         0.00009         0.00005      0.00007
+' 2     100     0.00007         0.00017         0.00005      0.00007
+' 3    1000     0.00007         0.00176         0.00005      0.00007
+' 4   10000     0.00006         0.01492         0.00005      0.00007
+' 5  100000     0.00009         0.15581         0.00006      0.00007
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' Private declarations
@@ -81,14 +95,12 @@ Private Enum VBERROR
     vbErrorInvalidProcedureCall = 5
 End Enum
 
-' ChunkSize is the size by which the dynamic array grows or shrinks.
-Private Const ChunkSize As Long = 100
+' The position of the top of the stack.
+Private Const Top As Long = 1
 
 ' Wrapper for private data.
 Private Type TPRIVATE
-    Top As Long
-    Stack() As Variant
-    List As Collection
+    Stack As Collection
 End Type
 Private this As TPRIVATE
 
@@ -99,9 +111,7 @@ Private this As TPRIVATE
 
 Private Sub Class_Initialize()
 
-    ReDim this.Stack(1 To ChunkSize)
-    this.Top = 0
-    Set this.List = Nothing
+    Set this.Stack = New Collection
 
 End Sub
 
@@ -115,24 +125,11 @@ End Sub
 Public Property Get Enumerate() As IEnumVARIANT
 ' Called by For Each by setting Attribute Enumerate.VB_UserMemId = -4.
 ' [_NewEnum] is the name of the hidden method to enumerate a VB Collection.
-' The internal stack array is first copied to an intermediate VB Collection.
 '
-' Mutating Stack during the For Each loop does not break the enumeration but
-' will give unpredictable results. After a For Each loop completes, this.List
-' remains intact. VB does not expose a standard hook to detect when enumeration
-' has finished. To keep it simple, any Push or Pop will reset the enumerator.
-'
-' While the current enumerator remains valid, modifying the stack during
-' iteration may lead to unpredictable behavior. This reflects VB's native
-' semantics: altering a collection mid-enumeration can produce undefined or
-' erratic runtime results.
+' Don't mutate the Stack object during the For Each loop. This will result in
+' unpredictable behavior which is reflecting VB's native semantics.
 
-    Set this.List = New Collection
-    Dim i As Long
-    For i = this.Top To 1 Step -1
-        this.List.Add this.Stack(i)
-    Next
-    Set Enumerate = this.List.[_NewEnum]
+    Set Enumerate = this.Stack.[_NewEnum]
 
 End Property
 
@@ -140,8 +137,7 @@ End Property
 '@Description "Removes all items from the stack."
 Public Sub Clear()
 
-    ReDim this.Stack(1 To ChunkSize)
-    this.Top = 0
+    Set this.Stack = New Collection
 
 End Sub
 
@@ -149,7 +145,7 @@ End Sub
 '@Description "Returns the number of items contained in the stack."
 Public Property Get Count() As Long
 
-    Count = this.Top
+    Count = this.Stack.Count
 
 End Property
 
@@ -157,7 +153,7 @@ End Property
 '@Description "Returns True if the stack is empty or False if not."
 Public Property Get IsEmpty() As Boolean
 
-    IsEmpty = (this.Top = 0)
+    IsEmpty = (this.Stack.Count = 0)
 
 End Property
 
@@ -166,13 +162,8 @@ End Property
 '@Description "Returns the item at the top of the stack."
 Public Property Get Peek() As Variant
 
-    If this.Top = 0 Then Err.Raise vbErrorInvalidProcedureCall, VBA.TypeName(Me) & ".Peek", "Stack is empty"
-
-    If VBA.IsObject(this.Stack(this.Top)) Then
-        Set Peek = this.Stack(this.Top)
-    Else
-        Peek = this.Stack(this.Top)
-    End If
+    If this.Stack.Count = 0 Then Err.Raise vbErrorInvalidProcedureCall, VBA.TypeName(Me) & ".Peek", "Stack is empty"
+    AssignVariant Peek, this.Stack.Item(Top)
 
 End Property
 
@@ -180,25 +171,9 @@ End Property
 '@Description "Returns and removes the item at the top of the stack."
 Public Function Pop() As Variant
 
-    If this.Top = 0 Then Err.Raise vbErrorInvalidProcedureCall, VBA.TypeName(Me) & ".Pop", "Stack is empty"
-
-    If VBA.IsObject(this.Stack(this.Top)) Then
-        Set Pop = this.Stack(this.Top)
-    Else
-        Pop = this.Stack(this.Top)
-    End If
-
-    ' Tidy up especially for an object or a string.
-    this.Stack(this.Top) = Empty
-
-    this.Top = this.Top - 1
-
-    ' Reclaim the headspace if it has become two chunks large.
-    If UBound(this.Stack) = this.Top + 2 * ChunkSize Then
-        ReDim Preserve this.Stack(1 To this.Top + ChunkSize)
-    End If
-
-    Set this.List = Nothing
+    If this.Stack.Count = 0 Then Err.Raise vbErrorInvalidProcedureCall, VBA.TypeName(Me) & ".Pop", "Stack is empty"
+    AssignVariant Pop, this.Stack.Item(Top)
+    this.Stack.Remove Top
 
 End Function
 
@@ -206,20 +181,11 @@ End Function
 '@Description "Adds an item at the top of the stack."
 Public Sub Push(ByVal Item As Variant)
 
-    ' Increase the headspace if there is none left.
-    If UBound(this.Stack) = this.Top Then
-        ReDim Preserve this.Stack(1 To this.Top + ChunkSize)
-    End If
-
-    this.Top = this.Top + 1
-
-    If VBA.IsObject(Item) Then
-        Set this.Stack(this.Top) = Item
+    If this.Stack.Count = 0 Then
+        this.Stack.Add Item
     Else
-        this.Stack(this.Top) = Item
+        this.Stack.Add Item, before:=Top
     End If
-
-    Set this.List = Nothing
 
 End Sub
 
@@ -227,24 +193,42 @@ End Sub
 '@Description "Exports all stack items to an array."
 Public Function Items(Optional ByVal base As Long) As Variant()
 
-    If this.Top = 0 Then
+    If this.Stack.Count = 0 Then
         ' Returns initialized empty array allowing For Each on object.Items.
         Items = Array()
         Exit Function
     End If
 
-    Dim arr() As Variant: ReDim arr(base To base + this.Top - 1)
-    Dim j As Long: j = base
-    Dim i As Long
-    For i = this.Top To 1 Step -1
-        If VBA.IsObject(this.Stack(i)) Then
-            Set arr(j) = this.Stack(i)
+    Dim arr() As Variant: ReDim arr(base To base + this.Stack.Count - 1)
+    Dim i As Long: i = base
+    Dim var As Variant
+    For Each var In this.Stack
+        If VBA.IsObject(var) Then
+            Set arr(i) = var
         Else
-            arr(j) = this.Stack(i)
+            arr(i) = var
         End If
-        j = j + 1
+        i = i + 1
     Next
 
     Items = arr
 
 End Function
+
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Private methods
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'@Description "Assigns a value or an object reference to a variable."
+'@Ignore ProcedureCanBeWrittenAsFunction
+Private Sub AssignVariant(ByRef var As Variant, ByVal value As Variant)
+' Prevents getting a Collection item twice at the expense of a stack frame.
+
+    If VBA.IsObject(value) Then
+        Set var = value
+    Else
+        var = value
+    End If
+
+End Sub
