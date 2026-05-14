@@ -33,7 +33,7 @@ A lightweight, **Collection-backed LIFO stack** for VBA with:
 | `Count`            | `Property` | Number of items. |
 | `IsEmpty`          | `Property` | `True` if empty, else `False`. |
 | `Clear`            | `Sub`      | Removes all items. |
-| `Items([base])`    | `Function` | Returns all items as a `Variant()` array; `base` can be `0` or `1`. |
+| `Items([base])`    | `Function` | Returns all items as a `Variant()` array; `base` default = `0`. |
 | `For Each`         | Enumerator | Iterates **top → bottom** (don’t mutate during enumeration). |
 
 **Error behavior**  
