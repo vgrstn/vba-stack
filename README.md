@@ -4,7 +4,7 @@
 ![Architecture](https://img.shields.io/badge/Architecture-x86%20%7C%20x64-lightgrey)
 ![Rubberduck](https://img.shields.io/badge/Rubberduck-Ready-orange)
 
-VBA Class for generic Stack based on an encapsulated VB Collection
+VBA code for a generic Stack Class based on an encapsulated VB Collection
 
 A lightweight, **Collection-backed LIFO stack** for VBA with:
 - O(1) push/pop at the **top** (stored at position `1`)
