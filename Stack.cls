@@ -200,14 +200,8 @@ Public Sub Push(ByVal Item As Variant)
 End Sub
 
 
-'@Description "Exports all stack items to an array."
+'@Description "Exports all stack items to an array with most recently pushed item as first array element."
 Public Function Items(Optional ByVal base As Long) As Variant()
-
-    If this.Stack.Count = 0 Then
-        ' Returns initialized empty array allowing For Each on object.Items.
-        Items = Array()
-        Exit Function
-    End If
 
     Dim arr() As Variant: ReDim arr(base To base + this.Stack.Count - 1)
     Dim i As Long: i = base
