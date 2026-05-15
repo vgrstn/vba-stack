@@ -8,9 +8,6 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Attribute VB_Description = "Generic Stack Class."
-'@IgnoreModule UseMeaningfulName, ProcedureNotUsed
-'@Folder("Class")
-'@ModuleDescription("Generic Stack Class.")
 
 '------------------------------------------------------------------------------
 ' MIT License
@@ -46,7 +43,6 @@ Option Explicit
 ' E-mail: vincent@vangeerestein.com
 ' Description: Generic Stack Class
 ' Enumeration: For Each item in object
-' Add-in: RubberDuck (https://rubberduckvba.com/)
 ' Version: 2025.09.09
 '
 ' Methods
@@ -130,10 +126,10 @@ End Sub
 ' Public methods
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-'@Enumerator
-'@Description "Enumerate stack from top to bottom."
 Public Property Get Enumerate() As IEnumVARIANT
-' Called by For Each by setting Attribute Enumerate.VB_UserMemId = -4.
+Attribute Enumerate.VB_UserMemId = -4
+Attribute Enumerate.VB_Description = "Enumerate stack from top to bottom."
+' Called by For Each via Attribute Enumerate.VB_UserMemId = -4.
 ' [_NewEnum] is the name of the hidden method to enumerate a VB Collection.
 '
 ' Don't mutate the Stack object during the For Each loop. This will result in
@@ -144,33 +140,33 @@ Public Property Get Enumerate() As IEnumVARIANT
 End Property
 
 
-'@Description "Removes all items from the stack."
 Public Sub Clear()
+Attribute Clear.VB_Description = "Removes all items from the stack."
 
     Set this.Stack = New Collection
 
 End Sub
 
 
-'@Description "Returns the number of items contained in the stack."
 Public Property Get Count() As Long
+Attribute Count.VB_Description = "Returns the number of items contained in the stack."
 
     Count = this.Stack.Count
 
 End Property
 
 
-'@Description "Returns True if the stack is empty or False if not."
 Public Property Get IsEmpty() As Boolean
+Attribute IsEmpty.VB_Description = "Returns True if the stack is empty or False if not."
 
     IsEmpty = (this.Stack.Count = 0)
 
 End Property
 
 
-'@DefaultMember
-'@Description "Returns the item at the top of the stack."
 Public Property Get Peek() As Variant
+Attribute Peek.VB_UserMemId = 0
+Attribute Peek.VB_Description = "Returns the item at the top of the stack."
 
     If this.Stack.Count = 0 Then Err.Raise vbErrorInvalidProcedureCall, VBA.TypeName(Me) & ".Peek", "Stack is empty"
     AssignVariant Peek, this.Stack.Item(Top)
@@ -178,8 +174,8 @@ Public Property Get Peek() As Variant
 End Property
 
 
-'@Description "Returns and removes the item at the top of the stack."
 Public Function Pop() As Variant
+Attribute Pop.VB_Description = "Returns and removes the item at the top of the stack."
 
     If this.Stack.Count = 0 Then Err.Raise vbErrorInvalidProcedureCall, VBA.TypeName(Me) & ".Pop", "Stack is empty"
     AssignVariant Pop, this.Stack.Item(Top)
@@ -188,8 +184,8 @@ Public Function Pop() As Variant
 End Function
 
 
-'@Description "Adds an item at the top of the stack."
 Public Sub Push(ByVal Item As Variant)
+Attribute Push.VB_Description = "Adds an item at the top of the stack."
 
     If this.Stack.Count = 0 Then
         this.Stack.Add Item
@@ -200,8 +196,8 @@ Public Sub Push(ByVal Item As Variant)
 End Sub
 
 
-'@Description "Exports all stack items to an array with most recently pushed item as first array element."
 Public Function Items(Optional ByVal base As Long) As Variant()
+Attribute Items.VB_Description = "Exports all stack items to an array with most recently pushed item as first array element."
 
     Dim arr() As Variant: ReDim arr(base To base + this.Stack.Count - 1)
     Dim i As Long: i = base
@@ -224,9 +220,8 @@ End Function
 ' Private methods
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-'@Description "Assigns a value or an object reference to a variable."
-'@Ignore ProcedureCanBeWrittenAsFunction
 Private Sub AssignVariant(ByRef var As Variant, ByVal value As Variant)
+Attribute AssignVariant.VB_Description = "Assigns a value or an object reference to a variable."
 ' Prevents getting a Collection item twice at the expense of a stack frame.
 
     If VBA.IsObject(value) Then

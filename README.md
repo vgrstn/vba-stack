@@ -14,6 +14,17 @@ A lightweight, **Collection-backed LIFO stack** for VBA with:
 
 ---
 
+## 📁 Files
+
+| File | Description |
+|---|---|
+| `Stack.cls` | Source file with [Rubberduck](https://rubberduckvba.com/) annotations (`'@Description`, `'@DefaultMember`, `'@Enumerator`) |
+| `Stack_WithAttributes.cls` | Ready-to-import version with VB attributes baked in — no Rubberduck required |
+
+Both files are identical in behaviour. Import `Stack_WithAttributes.cls` if you are not using Rubberduck.
+
+---
+
 ## 📦 Features
 
 - **Fast push/pop** (top is position `1` to avoid VB Collection tail-removal penalty)
@@ -62,11 +73,11 @@ Timings (ms) for one `Push` + one `Pop`, measured on Windows x64:
 
 | # | Count   | vba-stack | System.Collections.Stack |
 |---|---------|-----------|--------------------------|
-| 1 | 10      | 0.00054   | 0.00410                  |
-| 2 | 100     | 0.00053   | 0.00396                  |
-| 3 | 1,000   | 0.00054   | 0.00364                  |
-| 4 | 10,000  | 0.00054   | 0.00390                  |
-| 5 | 100,000 | 0.00053   | 0.00383                  |
+| 1 | 10      | 0.00053   | 0.00527                  |
+| 2 | 100     | 0.00053   | 0.00528                  |
+| 3 | 1,000   | 0.00052   | 0.00529                  |
+| 4 | 10,000  | 0.00052   | 0.00534                  |
+| 5 | 100,000 | 0.00052   | 0.00531                  |
 
 Performance is consistent regardless of stack size. `System.Collections.Stack` uses late binding, which explains its relatively poor performance.
 
